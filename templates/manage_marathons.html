@@ -1,0 +1,153 @@
+<!-- templates/manage_marathons.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Manage Marathons</h2>
+        </div>
+        <div class="col text-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createMarathonModal">
+                Create New Marathon
+            </button>
+        </div>
+    </div>
+
+    <!-- Marathon List -->
+    <div class="card">
+        <div class="card-body">
+            {% if marathons %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for marathon in marathons %}
+                        <tr>
+                            <td>{{ marathon.name }}</td>
+                            <td>{{ marathon.event_date.strftime('%Y-%m-%d') if marathon.event_date else 'N/A' }}</td>
+                            <td>{{ marathon.location }}</td>
+                            <td>
+                                <span class="badge {% if marathon.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ 'Active' if marathon.is_active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('main.upload_image', marathon_id=marathon.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        Upload Photos
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                            onclick="editMarathon('{{ marathon.id }}', '{{ marathon.name }}', '{{ marathon.event_date.strftime('%Y-%m-%d') if marathon.event_date else '' }}', '{{ marathon.location }}', {{ 'true' if marathon.is_active else 'false' }})">
+                                        Edit
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">No marathons found. Create your first marathon to get started!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Create Marathon Modal -->
+<div class="modal fade" id="createMarathonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Marathon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.create_marathon') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Marathon Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="event_date" class="form-label">Event Date</label>
+                        <input type="date" class="form-control" id="event_date" name="event_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Marathon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Marathon Modal -->
+<div class="modal fade" id="editMarathonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Marathon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editMarathonForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">Marathon Name</label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_event_date" class="form-label">Event Date</label>
+                        <input type="date" class="form-control" id="edit_event_date" name="event_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="edit_location" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="edit_is_active" name="is_active">
+                            <label class="form-check-label" for="edit_is_active">Active</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editMarathon(id, name, eventDate, location, isActive) {
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_event_date').value = eventDate;
+    document.getElementById('edit_location').value = location;
+    document.getElementById('edit_is_active').checked = isActive;
+    document.getElementById('editMarathonForm').action = "{{ url_for('main.update_marathon', marathon_id='') }}" + id;
+    
+    new bootstrap.Modal(document.getElementById('editMarathonModal')).show();
+}
+</script>
+{% endblock %}

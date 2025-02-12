@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h1>Welcome to FoTeam</h1>
+        {% if 'user_id' not in session %}
+        <p class="lead">
+            Please <a href="{{ url_for('auth.login') }}">login</a> or 
+            <a href="{{ url_for('auth.register') }}">register</a> to manage marathons and photos.
+        </p>
+        {% else %}
+        <p class="lead">
+            Start by <a href="{{ url_for('main.manage_marathons') }}">managing marathons</a> or 
+            <a href="{{ url_for('main.upload_image') }}">uploading photos</a>.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

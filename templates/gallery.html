@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Photo Gallery</h2>
+
+    <!-- Search and Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('main.gallery') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="marathon_id" class="form-label">Marathon</label>
+                    <select name="marathon_id" id="marathon_id" class="form-select">
+                        <option value="">All Marathons</option>
+                        {% for marathon in marathons %}
+                        <option value="{{ marathon.id }}" {% if selected_marathon == marathon.id %}selected{% endif %}>
+                            {{ marathon.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search_numbers" class="form-label">Search Runner Numbers</label>
+                    <input type="text" class="form-control" id="search_numbers" name="search_numbers"
+                        value="{{ search_numbers }}" placeholder="Enter numbers (e.g., 123, 456)">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Photo Grid -->
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for image in images %}
+        <div class="col">
+            <div class="card h-100">
+                <img src="{{ image.url }}" class="card-img-top" alt="Marathon Photo">
+                <div class="card-body">
+                    <p class="card-text">
+                        {% if image.detected_numbers %}
+                        <strong>Runner Numbers:</strong> {{ image.detected_numbers }}
+                        {% else %}
+                        <em>No numbers detected</em>
+                        {% endif %}
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">Uploaded: {{ image.upload_time.strftime('%Y-%m-%d %H:%M:%S') if image.upload_time else 'Unknown' }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('main.gallery', page=p, marathon_id=selected_marathon, search_numbers=search_numbers) }}">
+                    {{ p }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

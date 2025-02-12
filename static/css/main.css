@@ -1,0 +1,41 @@
+.main-nav {
+    background: #2c3e50;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    color: #3498db;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.flashes {
+    margin-bottom: 1.5rem;
+}
+
+.alert {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}

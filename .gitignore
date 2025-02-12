@@ -1,0 +1,30 @@
+# Environment files
+.env
+service-account-key.json
+
+# Virtual environment
+venv/
+
+# Temporary files
+*.pyc
+__pycache__/
+/tmp/*
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# IDE specific
+.vscode/
+.idea/
+
+# Local development
+.DS_Store
+
+# GCP-related exclusions
+.gcp-service-account.json
+gcp-credentials.json
+gcp-key.json
