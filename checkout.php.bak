@@ -1,0 +1,176 @@
+<?php
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
+
+// Redirect to login if not logged in
+if (!is_logged_in()) {
+    $_SESSION['redirect_after_login'] = 'checkout.php';
+    set_flash_message('Debe iniciar sesión para realizar el pago', 'warning');
+    redirect('login.php');
+}
+
+// Get cart items
+$cart_items = get_cart_items($_SESSION['user_id']);
+
+// Redirect to cart if empty
+if (empty($cart_items)) {
+    set_flash_message('Su carrito está vacío', 'warning');
+    redirect('cart.php');
+}
+
+// Process checkout form
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Check CSRF token
+    check_csrf_token();
+    
+    $customer_name = $_POST['customer_name'] ?? '';
+    $customer_email = $_POST['customer_email'] ?? '';
+    $customer_phone = $_POST['customer_phone'] ?? '';
+    
+    // Validate input
+    $errors = [];
+    
+    if (empty($customer_name)) {
+        $errors[] = 'El nombre es obligatorio';
+    }
+    
+    if (empty($customer_email)) {
+        $errors[] = 'El correo electrónico es obligatorio';
+    } elseif (!filter_var($customer_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'El correo electrónico no es válido';
+    }
+    
+    if (empty($customer_phone)) {
+        $errors[] = 'El teléfono es obligatorio';
+    }
+    
+    if (empty($errors)) {
+        $result = create_order(
+            $_SESSION['user_id'],
+            $customer_name,
+            $customer_email,
+            $customer_phone
+        );
+        
+        if ($result['success']) {
+            set_flash_message('¡Pedido realizado con éxito!', 'success');
+            redirect('order_confirmation.php?id=' . $result['order_id']);
+        } else {
+            set_flash_message($result['message'], 'danger');
+        }
+    } else {
+        // Display all errors
+        foreach ($errors as $error) {
+            set_flash_message($error, 'danger');
+        }
+    }
+}
+
+// Calculate total
+$price_per_item = 10.00; // Example price
+$total = count($cart_items) * $price_per_item;
+
+// Include header
+include 'includes/header.php';
+?>
+
+<div class="container">
+    <h1>Finalizar Compra</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Información de Contacto</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="checkout.php" id="checkout-form">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                        
+                        <div class="mb-3">
+                            <label for="customer_name" class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="customer_email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="customer_phone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <p><strong>Nota:</strong> Después de realizar el pedido, recibirá un correo electrónico con instrucciones para descargar sus fotos.</p>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Completar Pedido</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Resumen del Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Fotos (<?php echo count($cart_items); ?>)</span>
+                        <span>$<?php echo number_format($total, 2); ?></span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span>$<?php echo number_format($total, 2); ?></span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <h6>Fotos en su Carrito:</h6>
+                    <div class="row g-2 mt-2">
+                        <?php foreach ($cart_items as $item): ?>
+                        <div class="col-4">
+                            <img src="<?php echo h($item['thumbnail_url']); ?>" class="img-thumbnail" alt="Foto de Maratón">
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    
+    form.addEventListener('submit', function(e) {
+        let valid = true;
+        const name = document.getElementById('customer_name').value.trim();
+        const email = document.getElementById('customer_email').value.trim();
+        const phone = document.getElementById('customer_phone').value.trim();
+        
+        if (name === '') {
+            valid = false;
+            alert('Por favor ingrese su nombre completo');
+        } else if (email === '') {
+            valid = false;
+            alert('Por favor ingrese su correo electrónico');
+        } else if (phone === '') {
+            valid = false;
+            alert('Por favor ingrese su teléfono');
+        }
+        
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>

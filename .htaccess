@@ -1,0 +1,26 @@
+RewriteEngine On
+
+# Handle front controller pattern - route all requests to non-existent files through index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Set default character set
+AddDefaultCharset UTF-8
+
+# Remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Protect sensitive files
+<FilesMatch "\.(env|sql|git|htaccess|log)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# PHP configuration
+php_flag display_errors off
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+php_value memory_limit 256M
+php_value max_execution_time 600

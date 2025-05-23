@@ -1,0 +1,58 @@
+<?php
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
+
+// Get latest public marathons
+$latest_marathons = get_public_marathons();
+// Limit to 3 marathons for display
+$latest_marathons = array_slice($latest_marathons, 0, 3);
+
+// Include header
+include 'includes/header.php';
+?>
+
+<div class="container">
+    <div class="jumbotron bg-light p-5 rounded">
+        <h1 class="display-4">Bienvenido a FoTeam</h1>
+        <p class="lead">Encuentra y compra fotos de tus maratones favoritos.</p>
+        <hr class="my-4">
+        
+        <div class="mt-4 mb-4">
+            <a href="gallery.php" class="btn btn-primary btn-lg">Explorar Galería</a>
+            <?php if (!is_logged_in()): ?>
+            <a href="register.php" class="btn btn-outline-primary btn-lg ms-2">Registrarse</a>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <h2 class="mb-4">Últimos Maratones</h2>
+    
+    <?php if (!empty($latest_marathons)): ?>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <?php foreach ($latest_marathons as $marathon): ?>
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo h($marathon['name']); ?></h5>
+                    <p class="card-text">
+                        <strong>Fecha:</strong> <?php echo date('d/m/Y', strtotime($marathon['event_date'])); ?><br>
+                        <?php if (!empty($marathon['location'])): ?>
+                        <strong>Ubicación:</strong> <?php echo h($marathon['location']); ?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="marathon_detail.php?id=<?php echo $marathon['id']; ?>" class="btn btn-primary">Ver Fotos</a>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="alert alert-info">
+        <p>No hay maratones públicos disponibles actualmente.</p>
+    </div>
+    <?php endif; ?>
+</div>
+
+<?php include 'includes/footer.php'; ?>

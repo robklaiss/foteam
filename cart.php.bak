@@ -1,0 +1,147 @@
+<?php
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
+
+// Redirect to login if not logged in
+if (!is_logged_in()) {
+    $_SESSION['redirect_after_login'] = 'cart.php';
+    set_flash_message('Debe iniciar sesión para ver su carrito', 'warning');
+    redirect('login.php');
+}
+
+// Get cart items
+$cart_items = get_cart_items($_SESSION['user_id']);
+
+// Include header
+include 'includes/header.php';
+?>
+
+<div class="container">
+    <h1>Carrito de Compras</h1>
+    
+    <?php if (!empty($cart_items)): ?>
+        <div class="row">
+            <?php foreach ($cart_items as $item): ?>
+                <div class="col-md-4 mb-4 cart-item" data-image-id="<?php echo $item['id']; ?>">
+                    <div class="card">
+                        <?php if (!empty($item['thumbnail_url'])): ?>
+                            <img src="<?php echo h($item['thumbnail_url']); ?>" class="card-img-top" alt="Foto de Maratón" onerror="this.onerror=null; this.src='assets/img/placeholder.png';">
+                        <?php else: ?>
+                            <img src="assets/img/placeholder.png" class="card-img-top" alt="Foto de Maratón">
+                        <?php endif; ?>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <?php if (!empty($item['detected_numbers'])): ?>
+                                    <strong>Números de Corredor:</strong> <?php echo h($item['detected_numbers']); ?>
+                                <?php else: ?>
+                                    <em>No se detectaron números</em>
+                                <?php endif; ?>
+                            </p>
+                            <button class="btn btn-danger w-100 remove-from-cart" data-image-id="<?php echo $item['id']; ?>">
+                                Eliminar del Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <a href="gallery.php" class="btn btn-secondary">Continuar Comprando</a>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="checkout.php" class="btn btn-primary">Proceder al Pago</a>
+            </div>
+        </div>
+    <?php else: ?>
+        <div class="alert alert-info">
+            Su carrito está vacío.
+        </div>
+        <a href="gallery.php" class="btn btn-primary">Explorar Galería</a>
+    <?php endif; ?>
+</div>
+
+<!-- Toast Container for notifications -->
+<div class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const removeButtons = document.querySelectorAll('.remove-from-cart');
+    
+    function createToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        
+        // Remove toast after it's hidden
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            toastEl.remove();
+        });
+    }
+    
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const imageId = this.getAttribute('data-image-id');
+            const cartItem = this.closest('.cart-item');
+            
+            fetch('cart_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `action=remove&image_id=${imageId}&csrf_token=${csrfToken}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove item from DOM
+                    cartItem.remove();
+                    createToast(data.message);
+                    
+                    // Update cart count in navbar
+                    const cartBadge = document.querySelector('.cart-badge');
+                    if (cartBadge) {
+                        const currentCount = parseInt(cartBadge.textContent);
+                        if (currentCount > 1) {
+                            cartBadge.textContent = currentCount - 1;
+                        } else {
+                            cartBadge.remove();
+                        }
+                    }
+                    
+                    // Check if cart is now empty
+                    const remainingItems = document.querySelectorAll('.cart-item');
+                    if (remainingItems.length === 0) {
+                        // Reload to show empty cart message
+                        location.reload();
+                    }
+                } else {
+                    createToast(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                createToast('Error al eliminar del carrito', 'danger');
+            });
+        });
+    });
+});
+</script>
+
+<?php include 'includes/footer.php'; ?>
