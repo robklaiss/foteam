@@ -40,47 +40,64 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo rtrim(BASE_URL, '/'); ?>/public/assets/css/style.css">
+    
+    <!-- Ensure jQuery is loaded before Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="<?php echo BASE_URL; ?>/index.php">
-                <img src="<?php echo BASE_URL; ?>/assets/img/logo.png" alt="FoTeam" height="40">
+            <a class="navbar-brand" href="<?php echo BASE_URL; ?>">
+                <img src="<?php echo BASE_URL; ?>/public/assets/img/logo.png" alt="FoTeam" height="40">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    <!-- Public Site -->
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/index.php">Inicio</a>
+                        <a class="nav-link" href="<?php echo rtrim(BASE_URL, '/'); ?>/index.php">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/gallery.php">Galería</a>
+                        <a class="nav-link" href="<?php echo rtrim(BASE_URL, '/'); ?>/gallery.php">Galería</a>
                     </li>
+                    
+                    <!-- Photographer Section -->
                     <?php if (is_logged_in()): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/upload.php">Subir Fotos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/manage_marathons.php">Mis Maratones</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/orders.php">Mis Pedidos</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="photographerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Fotógrafo
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="photographerDropdown">
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/upload.php">Subir Fotos</a></li>
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/manage_marathons.php">Mis Maratones</a></li>
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/fotografos/">Área de Fotógrafos</a></li>
+                        </ul>
                     </li>
                     <?php endif; ?>
+
+                    <!-- Admin Section -->
                     <?php if (is_admin()): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?php echo BASE_URL; ?>/admin/index.php">Admin</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Administración
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/">Panel de Control</a></li>
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/users.php">Usuarios</a></li>
+                            <li><a class="dropdown-item" href="<?php echo rtrim(BASE_URL, '/'); ?>/admin/reports.php">Reportes</a></li>
+                        </ul>
                     </li>
                     <?php endif; ?>
                 </ul>
                 <ul class="navbar-nav">
                     <?php if (is_logged_in()): ?>
                     <li class="nav-item">
-                        <a class="nav-link position-relative" href="<?php echo BASE_URL; ?>/cart.php">
+                        <a class="nav-link position-relative" href="<?php echo rtrim(BASE_URL, '/'); ?>/cart.php">
                             <i class="bi bi-cart"></i> Carrito
                             <?php if ($cart_count > 0): ?>
                             <span class="cart-badge"><?php echo $cart_count; ?></span>

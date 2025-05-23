@@ -1,9 +1,11 @@
 # Environment variables
 .env
+*.env.*
+!.env.example
 
 # Private credentials
-/credentials/google-cloud-key.json
 /credentials/*.json
+!credentials/example-credentials.json
 
 # Logs
 *.log
@@ -19,6 +21,34 @@ pids
 
 # Dependency directories
 node_modules/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+/public/assets/uploads/*
+!/public/assets/uploads/.gitkeep
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Session files
+/tmp/sessions/*
+!tmp/sessions/.gitkeep
 vendor/
 
 # Optional npm cache directory

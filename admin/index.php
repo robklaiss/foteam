@@ -1,6 +1,10 @@
 <?php
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
+// Include bootstrap first to configure environment and settings
+require_once dirname(__DIR__) . '/includes/bootstrap.php';
+
+// Include config and functions
+require_once dirname(__DIR__) . '/includes/config.php';
+require_once dirname(__DIR__) . '/includes/functions.php';
 
 // Redirect to login if not logged in or not admin
 if (!is_logged_in() || !is_admin()) {
@@ -51,7 +55,7 @@ $result->finalize();
 $db->close();
 
 // Include header
-include '../includes/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <div class="container">

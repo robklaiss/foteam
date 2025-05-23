@@ -14,9 +14,15 @@ Esta es la versión PHP de la aplicación FoTeam, diseñada para ser alojada en 
 
 ## Requisitos del Sistema
 
-- PHP 7.4 o superior
-- Extensiones PHP: sqlite3, gd, json, session
-- Servidor web (Apache recomendado)
+- PHP 8.0 o superior
+- MySQL 5.7+ o MariaDB 10.3+
+- Extensiones PHP: pdo, pdo_mysql, gd, json, session, fileinfo, openssl
+- Servidor web (Apache o Nginx)
+- Node.js 16+ y NPM 7+
+- Composer 2.0+
+- Credenciales de Google Cloud Vision API
+- Al menos 1GB de espacio en disco para almacenamiento de fotos
+- Memoria PHP recomendada: 256M o superior
 
 ## Instalación en Hostgator
 

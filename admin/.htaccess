@@ -1,0 +1,30 @@
+# Admin .htaccess
+RewriteEngine On
+
+# Ensure the request is not for an existing file or directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route all admin requests through index.php
+RewriteRule ^(.*)$ index.php [L]
+
+# Security - deny access to sensitive files
+<FilesMatch "\.(env|sql|git|htaccess|log|md|json|config|yaml|yml|lock)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# PHP configuration
+php_flag display_errors off
+php_value upload_max_filesize 50M
+php_value post_max_size 50M
+php_value memory_limit 256M
+php_value max_execution_time 600
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

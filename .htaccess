@@ -1,19 +1,34 @@
+# Enable the rewrite engine
 RewriteEngine On
+
+# Handle Authorization Header
+RewriteCond %{HTTP:Authorization} .
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Skip the API and admin directories from front controller
+RewriteRule ^admin/ - [L,NC]
+RewriteRule ^api/ - [L,NC]
+
+# Set the base path dynamically
+RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+RewriteRule ^(.*) - [E=BASE:%1]
 
 # Handle front controller pattern - route all requests to non-existent files through index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/index\.php [NC]
 RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Remove trailing slashes (except for the root)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^(.+)/$
+RewriteRule ^(.+)/$ /$1 [R=301,L]
 
 # Set default character set
 AddDefaultCharset UTF-8
 
-# Remove trailing slashes
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/$ /$1 [L,R=301]
-
 # Protect sensitive files
-<FilesMatch "\.(env|sql|git|htaccess|log)$">
+<FilesMatch "\.(env|sql|git|htaccess|log|md|json|config|yaml|yml|lock)$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
@@ -24,3 +39,27 @@ php_value upload_max_filesize 50M
 php_value post_max_size 50M
 php_value memory_limit 256M
 php_value max_execution_time 600
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Enable compression for better performance
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>

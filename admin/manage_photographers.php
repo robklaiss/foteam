@@ -1,5 +1,4 @@
-<?php
-require_once '../includes/config.php';
+<?php\n// Include bootstrap first to configure environment and settings\nrequire_once dirname(__DIR__) . '/includes/bootstrap.php';\n\n// Include config and functions\nrequire_once dirname(__DIR__) . '/includes/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/admin_functions.php';
 require_once '../includes/helper_functions.php';
@@ -38,7 +37,7 @@ $photographers = get_all_photographers();
 $marathons = get_public_marathons();
 
 // Include header
-include '../includes/header.php';
+require_once dirname(__DIR__) . '/includes/header.php';
 ?>
 
 <div class="container">

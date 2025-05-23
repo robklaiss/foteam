@@ -29,6 +29,31 @@ if (session_status() === PHP_SESSION_NONE) {
 define('APP_VERSION', '2.0.0');
 define('APP_NAME', 'FoTeam');
 
+// Base URL configuration
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'];
+$script_name = dirname($_SERVER['SCRIPT_NAME']);
+
+// Remove any trailing slashes from the script path
+$script_path = rtrim($script_name, '/');
+
+// If we're in a subdirectory, use that as the base path
+if ($script_path && $script_path !== '/') {
+    define('BASE_URL', $protocol . $host . $script_path);
+} else {
+    define('BASE_URL', $protocol . $host);
+}
+
+// Admin URL
+if (!defined('ADMIN_URL')) {
+    define('ADMIN_URL', rtrim(BASE_URL, '/') . '/admin');
+}
+
+// Site URL without trailing slash
+if (!defined('SITE_URL')) {
+    define('SITE_URL', rtrim(BASE_URL, '/'));
+}
+
 // Define BASE_URL
 if (!defined('BASE_URL')) {
     if (getenv('APP_ENV') === 'production') {
